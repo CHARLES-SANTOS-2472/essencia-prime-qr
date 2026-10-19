@@ -29,7 +29,7 @@ O workflow em `.github/workflows/pages.yml` publica automaticamente esta PWA qua
 
 1. Use o repositório dedicado `CHARLES-SANTOS-2472/essencia-prime-qr`. Não inclua os demais arquivos do diretório de estudos.
 2. O conteúdo desta pasta deve ficar na raiz do repositório, incluindo a pasta `.github/workflows`, na branch `main`.
-3. Nas configurações do repositório, acesse **Pages** e escolha **GitHub Actions** como fonte de publicação.
+3. O workflow configura automaticamente o GitHub Pages para usar GitHub Actions.
 4. Aguarde a execução do workflow **Publish Essencia Prime PWA** na aba **Actions**. O endereço será `https://SEU-USUARIO.github.io/essencia-prime-qr/` (substitua pelo usuário e nome do repositório).
 5. Abra esse endereço no navegador do celular pelo menos uma vez enquanto estiver conectado à internet.
 
