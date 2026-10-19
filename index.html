@@ -1,0 +1,198 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#123d35">
+    <meta name="description" content="Essencia Prime: gere seu QR-Code Pix, informativo ou de acesso ao Wi-Fi.">
+    <link rel="manifest" href="./manifest.webmanifest">
+    <link rel="icon" href="./assets/icon-192.png" type="image/png">
+    <link rel="apple-touch-icon" href="./assets/icon-192.png">
+    <link rel="stylesheet" href="./styles.css">
+    <title>Essencia Prime — Gerador de QR-Code</title>
+    <script src="./vendor/qrcode-generator.min.js" defer></script>
+    <script src="./app.js" defer></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <img class="brand-mark" src="./assets/essencia-prime.jpg" alt="Logotipo Essencia Prime">
+        <div>
+          <p class="eyebrow">Beleza, Cosméticos e Cuidados Pessoais.</p>
+          <h1>Essencia Prime</h1>
+          <p class="intro">Gere seu QR-Code</p>
+        </div>
+      </header>
+
+      <section class="privacy-note" aria-label="Privacidade e validação">
+        <span aria-hidden="true">🔒</span>
+        <p><strong>Privacidade:</strong> a foto, a senha Wi-Fi e os dados são processados somente neste dispositivo; nada é enviado ou armazenado. Quem tiver o QR Wi-Fi poderá ver a senha da rede. No modo Pix, confirme a titularidade da chave no banco.</p>
+      </section>
+
+      <form id="generator-form" novalidate>
+        <section class="form-section">
+          <div class="section-heading">
+            <span class="step">01</span>
+            <div>
+              <h2 id="form-section-title">Dados do titular</h2>
+              <p id="form-section-description">Escolha se deseja gerar códigos Pix, informações gerais ou acesso à rede Wi-Fi.</p>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <label class="field field-wide">
+              <span>Tipo de QR Code</span>
+              <select id="qr-mode" name="qrMode">
+                <option value="pix">Pix — pagamento e informações do recebedor</option>
+                <option value="info">Informativo — nome, cidade e descrição</option>
+                <option value="wifi">Wi-Fi — QR de acesso à rede</option>
+              </select>
+            </label>
+
+            <label class="field field-wide">
+              <span>Nome do titular</span>
+              <input id="holder-name" name="holderName" autocomplete="name" maxlength="80" required placeholder="Ex.: Maria da Silva">
+            </label>
+
+            <label id="holder-city-field" class="field">
+              <span>Cidade</span>
+              <input id="holder-city" name="holderCity" maxlength="60" autocomplete="address-level2" required placeholder="Ex.: São Paulo">
+            </label>
+
+            <div id="pix-fields" class="pix-fields field-wide">
+              <label class="field">
+                <span>Tipo da chave Pix</span>
+                <select id="key-type" name="keyType">
+                  <option value="cpf">CPF</option>
+                  <option value="cnpj">CNPJ</option>
+                  <option value="email">E-mail</option>
+                  <option value="phone">Telefone</option>
+                  <option value="random">Chave aleatória</option>
+                </select>
+              </label>
+
+              <label class="field">
+                <span>Chave Pix</span>
+                <input id="pix-key" name="pixKey" autocomplete="off" spellcheck="false" placeholder="Digite a chave Pix">
+                <small id="key-hint">A chave será verificada quanto ao formato.</small>
+              </label>
+
+              <label class="field field-wide">
+                <span>Valor da cobrança (opcional)</span>
+                <div class="amount-input">
+                  <span aria-hidden="true">R$</span>
+                  <input id="pix-amount" name="pixAmount" inputmode="decimal" autocomplete="off" maxlength="97" placeholder="Deixe em branco para o pagador informar">
+                </div>
+                <small>A cada geração, você pode informar um novo valor.</small>
+              </label>
+            </div>
+
+            <label id="description-field" class="field field-wide">
+              <span>Descrição do serviço prestado</span>
+              <textarea id="extra-info" name="extraInfo" maxlength="500" rows="3" placeholder="Ex.: consulta, manutenção, produto ou instruções para o pagador"></textarea>
+              <small id="description-hint">No modo Pix, esta descrição aparecerá no QR informativo do recebedor.</small>
+            </label>
+
+            <section id="wifi-fields" class="wifi-fields field-wide" aria-labelledby="wifi-title" hidden>
+              <div class="wifi-heading">
+                <h3 id="wifi-title">Dados da rede Wi-Fi</h3>
+                <p>O QR terá somente as informações necessárias para conectar à rede.</p>
+              </div>
+              <label class="field field-wide">
+                <span>Nome da rede (SSID)</span>
+                <input id="wifi-ssid" name="wifiSsid" maxlength="32" autocomplete="off" spellcheck="false" placeholder="Ex.: Minha Rede">
+                <small>O nome diferencia maiúsculas e minúsculas.</small>
+              </label>
+              <label class="field">
+                <span>Segurança da rede</span>
+                <select id="wifi-security" name="wifiSecurity">
+                  <option value="WPA">WPA / WPA2 / WPA3</option>
+                  <option value="WEP">WEP</option>
+                  <option value="nopass">Aberta, sem senha</option>
+                </select>
+              </label>
+              <label id="wifi-password-field" class="field">
+                <span>Senha do Wi-Fi</span>
+                <div class="wifi-password-input">
+                  <input id="wifi-password" name="wifiPassword" type="password" autocomplete="new-password" spellcheck="false" placeholder="Digite a senha da rede">
+                  <button id="toggle-wifi-password" type="button" aria-label="Mostrar senha do Wi-Fi" aria-pressed="false">Mostrar</button>
+                </div>
+                <small id="wifi-password-hint">A senha não será exibida fora do QR e não será salva.</small>
+              </label>
+              <label class="wifi-hidden-option">
+                <input id="wifi-hidden" name="wifiHidden" type="checkbox">
+                <span>Esta rede está oculta</span>
+              </label>
+            </section>
+
+            <div class="field field-wide">
+              <span id="photo-label">Foto do titular</span>
+              <label class="photo-picker" for="holder-photo">
+                <span class="photo-icon" aria-hidden="true">＋</span>
+                <span><strong>Escolher uma foto</strong><small>JPG, PNG ou WebP · até 5 MB</small></span>
+                <input id="holder-photo" name="holderPhoto" type="file" accept="image/*" required aria-labelledby="photo-label">
+              </label>
+              <div id="photo-preview" class="photo-preview" hidden>
+                <img id="photo-image" alt="Prévia da foto do titular">
+                <span id="photo-name"></span>
+                <button id="remove-photo" class="text-button" type="button">Remover foto</button>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <p id="form-message" class="form-message" role="alert" hidden></p>
+        <button id="generate-button" class="primary-button" type="submit">
+          <span aria-hidden="true">✦</span> Gerar meus QR Codes
+        </button>
+      </form>
+
+      <section id="results" class="results" aria-labelledby="results-title" hidden>
+        <div class="results-heading">
+          <div>
+            <p class="eyebrow">PRONTO PARA USAR</p>
+            <h2 id="results-title">Seu cartão digital</h2>
+          </div>
+          <button id="download-card" class="secondary-button" type="button">Baixar cartão PNG</button>
+        </div>
+        <p id="result-note" class="result-note">A foto aparece no cartão, mas não é inserida nos QR Codes. Confira o nome do recebedor ao testar o Pix.</p>
+
+        <div class="profile-card">
+          <div class="profile-summary">
+            <img id="result-photo" alt="">
+            <div>
+              <p id="profile-label" class="eyebrow">TITULAR</p>
+              <h3 id="result-name"></h3>
+              <p id="result-key" class="result-key"></p>
+            </div>
+          </div>
+          <div id="qr-grid" class="qr-grid">
+            <article id="pix-card" class="qr-card">
+              <span class="qr-label"><span class="qr-dot pix-dot"></span> PAGAMENTO PIX</span>
+              <div id="pix-qr" class="qr-image" aria-label="QR Code para pagamento Pix"></div>
+              <p>Escaneie no aplicativo do seu banco</p>
+              <button class="text-button download-qr" data-target="pix-qr" data-filename="pix-pagamento.png" type="button">Baixar QR Pix</button>
+            </article>
+            <article id="info-card" class="qr-card">
+              <span id="info-qr-label" class="qr-label"><span class="qr-dot info-dot"></span> INFORMAÇÕES DO RECEBEDOR</span>
+              <div id="info-qr" class="qr-image" aria-label="QR Code com informações do titular"></div>
+              <p id="info-qr-description">Nome, chave Pix, descrição do serviço e cidade</p>
+              <button id="download-info-qr" class="text-button download-qr" data-target="info-qr" data-filename="informacoes-titular.png" type="button">Baixar QR informativo</button>
+            </article>
+          </div>
+        </div>
+
+        <details id="payload-details" class="payload-details">
+          <summary>Ver código Pix “copia e cola”</summary>
+          <textarea id="pix-payload" readonly rows="4" aria-label="Código Pix copia e cola"></textarea>
+          <button id="copy-payload" class="text-button" type="button">Copiar código</button>
+        </details>
+        <p id="copy-message" class="copy-message" role="status" aria-live="polite"></p>
+      </section>
+
+      <footer>
+        <p>Feito para gerar localmente. No modo Pix, confirme o nome do recebedor no banco; o QR Wi-Fi compartilha os dados de acesso à rede.</p>
+      </footer>
+    </main>
+  </body>
+</html>
